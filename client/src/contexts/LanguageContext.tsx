@@ -1,0 +1,223 @@
+import { createContext, useContext, useState, ReactNode } from 'react';
+
+export type Language = 'en' | 'hi' | 'pa';
+
+interface LanguageContextType {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  t: (key: string) => string;
+}
+
+// Translation dictionary
+const translations = {
+  en: {
+    welcome: "Welcome",
+    hello: "Hello",
+    location: "Location",
+    weatherUpdates: "Weather Updates",
+    cropAdvisory: "Crop Advisory",
+    camera: "Camera",
+    marketPrices: "Market Prices",
+    aiAdvisory: "AI Advisory",
+    agriExpert: "AgriExpert",
+    document: "Document",
+    realImage: "Real Image",
+    subscription: "Subscription",
+    profile: "Profile",
+    home: "Home",
+    schemes: "Schemes",
+    feedback: "Feedback",
+    phoneNumber: "Phone Number",
+    enterPhone: "Enter your phone number",
+    sendOtp: "Send OTP",
+    verifyOtp: "Verify OTP",
+    enterOtp: "Enter 6-digit OTP",
+    name: "Name",
+    enterName: "Enter your full name",
+    enterLocation: "Enter your location",
+    farmSize: "Farm Size (acres)",
+    cropsGrown: "Crops Grown",
+    selectCrops: "Select crops you grow",
+    save: "Save",
+    login: "Login",
+    register: "Register",
+    today: "Today",
+    tomorrow: "Tomorrow",
+    humidity: "Humidity",
+    wind: "Wind",
+    rainfall: "Rainfall",
+    temperature: "Temperature",
+    getAdvice: "Get personalized crop advice from AI",
+    consultExpert: "Consult with agricultural experts",
+    scanDocument: "Scan agricultural documents",
+    captureImage: "Capture crop or pest images",
+    currentWeather: "Current Weather",
+    forecast: "3-Day Forecast",
+    settings: "Settings",
+    aboutUs: "About Us",
+    contactUs: "Contact Us",
+    language: "Language",
+    selectLanguage: "Select Language",
+    logout: "Logout",
+    confirmLogout: "Are you sure you want to logout?",
+    cancel: "Cancel",
+    confirm: "Confirm",
+    close: "Close",
+    error: "Error",
+    success: "Success",
+    loading: "Loading...",
+    submit: "Submit",
+    back: "Back",
+    next: "Next",
+  },
+  hi: {
+    welcome: "स्वागत है",
+    hello: "नमस्ते",
+    location: "स्थान",
+    weatherUpdates: "मौसम अपडेट",
+    cropAdvisory: "फसल सलाह",
+    camera: "कैमरा",
+    marketPrices: "बाजार भाव",
+    aiAdvisory: "AI सलाह",
+    agriExpert: "कृषि विशेषज्ञ",
+    document: "दस्तावेज़",
+    realImage: "वास्तविक छवि",
+    subscription: "सदस्यता",
+    profile: "प्रोफ़ाइल",
+    home: "होम",
+    schemes: "योजनाएं",
+    feedback: "फीडबैक",
+    phoneNumber: "फ़ोन नंबर",
+    enterPhone: "अपना फ़ोन नंबर दर्ज करें",
+    sendOtp: "OTP भेजें",
+    verifyOtp: "OTP सत्यापित करें",
+    enterOtp: "6 अंकों का OTP दर्ज करें",
+    name: "नाम",
+    enterName: "अपना पूरा नाम दर्ज करें",
+    enterLocation: "अपना स्थान दर्ज करें",
+    farmSize: "खेत का आकार (एकड़)",
+    cropsGrown: "उगाई जाने वाली फसलें",
+    selectCrops: "अपनी फसलें चुनें",
+    save: "सेव करें",
+    login: "लॉगिन",
+    register: "रजिस्टर",
+    today: "आज",
+    tomorrow: "कल",
+    humidity: "आर्द्रता",
+    wind: "हवा",
+    rainfall: "बारिश",
+    temperature: "तापमान",
+    getAdvice: "AI से व्यक्तिगत फसल सलाह पाएं",
+    consultExpert: "कृषि विशेषज्ञों से सलाह लें",
+    scanDocument: "कृषि दस्तावेज़ स्कैन करें",
+    captureImage: "फसल या कीट की तस्वीर लें",
+    currentWeather: "वर्तमान मौसम",
+    forecast: "3 दिन का पूर्वानुमान",
+    settings: "सेटिंग्स",
+    aboutUs: "हमारे बारे में",
+    contactUs: "संपर्क करें",
+    language: "भाषा",
+    selectLanguage: "भाषा चुनें",
+    logout: "लॉगआउट",
+    confirmLogout: "क्या आप वाकई लॉगआउट करना चाहते हैं?",
+    cancel: "रद्द करें",
+    confirm: "पुष्टि करें",
+    close: "बंद करें",
+    error: "त्रुटि",
+    success: "सफलता",
+    loading: "लोड हो रहा है...",
+    submit: "सबमिट करें",
+    back: "वापस",
+    next: "आगे",
+  },
+  pa: {
+    welcome: "ਜੀ ਆਇਆਂ ਨੂੰ",
+    hello: "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ",
+    location: "ਸਥਾਨ",
+    weatherUpdates: "ਮੌਸਮ ਅੱਪਡੇਟ",
+    cropAdvisory: "ਫਸਲ ਸਲਾਹ",
+    camera: "ਕੈਮਰਾ",
+    marketPrices: "ਮਾਰਕੀਟ ਭਾਅ",
+    aiAdvisory: "AI ਸਲਾਹ",
+    agriExpert: "ਖੇਤੀ ਮਾਹਰ",
+    document: "ਦਸਤਾਵੇਜ਼",
+    realImage: "ਅਸਲ ਤਸਵੀਰ",
+    subscription: "ਮੈਂਬਰਸ਼ਿਪ",
+    profile: "ਪ੍ਰੋਫਾਈਲ",
+    home: "ਘਰ",
+    schemes: "ਸਕੀਮਾਂ",
+    feedback: "ਫੀਡਬੈਕ",
+    phoneNumber: "ਫ਼ੋਨ ਨੰਬਰ",
+    enterPhone: "ਆਪਣਾ ਫ਼ੋਨ ਨੰਬਰ ਦਾਖਲ ਕਰੋ",
+    sendOtp: "OTP ਭੇਜੋ",
+    verifyOtp: "OTP ਪੁਸ਼ਟੀ ਕਰੋ",
+    enterOtp: "6 ਅੰਕਾਂ ਦਾ OTP ਦਾਖਲ ਕਰੋ",
+    name: "ਨਾਮ",
+    enterName: "ਆਪਣਾ ਪੂਰਾ ਨਾਮ ਦਾਖਲ ਕਰੋ",
+    enterLocation: "ਆਪਣਾ ਸਥਾਨ ਦਾਖਲ ਕਰੋ",
+    farmSize: "ਖੇਤ ਦਾ ਆਕਾਰ (ਏਕੜ)",
+    cropsGrown: "ਉਗਾਈਆਂ ਫਸਲਾਂ",
+    selectCrops: "ਆਪਣੀਆਂ ਫਸਲਾਂ ਚੁਣੋ",
+    save: "ਸੇਵ ਕਰੋ",
+    login: "ਲਾਗਇਨ",
+    register: "ਰਜਿਸਟਰ",
+    today: "ਅੱਜ",
+    tomorrow: "ਕੱਲ",
+    humidity: "ਨਮੀ",
+    wind: "ਹਵਾ",
+    rainfall: "ਬਾਰਿਸ਼",
+    temperature: "ਤਾਪਮਾਨ",
+    getAdvice: "AI ਤੋਂ ਵਿਅਕਤੀਗਤ ਫਸਲ ਸਲਾਹ ਲਓ",
+    consultExpert: "ਖੇਤੀ ਮਾਹਰਾਂ ਨਾਲ ਸਲਾਹ ਕਰੋ",
+    scanDocument: "ਖੇਤੀ ਦਸਤਾਵੇਜ਼ ਸਕੈਨ ਕਰੋ",
+    captureImage: "ਫਸਲ ਜਾਂ ਕੀੜੇ ਦੀ ਤਸਵੀਰ ਲਓ",
+    currentWeather: "ਮੌਜੂਦਾ ਮੌਸਮ",
+    forecast: "3 ਦਿਨਾਂ ਦਾ ਪੂਰਵਾਨੁਮਾਨ",
+    settings: "ਸੈਟਿੰਗਜ਼",
+    aboutUs: "ਸਾਡੇ ਬਾਰੇ",
+    contactUs: "ਸਾਡੇ ਨਾਲ ਸੰਪਰਕ ਕਰੋ",
+    language: "ਭਾਸ਼ਾ",
+    selectLanguage: "ਭਾਸ਼ਾ ਚੁਣੋ",
+    logout: "ਲਾਗਆਉਟ",
+    confirmLogout: "ਕੀ ਤੁਸੀਂ ਸੱਚਮੁੱਚ ਲਾਗਆਉਟ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ?",
+    cancel: "ਰੱਦ ਕਰੋ",
+    confirm: "ਪੁਸ਼ਟੀ ਕਰੋ",
+    close: "ਬੰਦ ਕਰੋ",
+    error: "ਗਲਤੀ",
+    success: "ਸਫਲਤਾ",
+    loading: "ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ...",
+    submit: "ਸਬਮਿਟ ਕਰੋ",
+    back: "ਵਾਪਸ",
+    next: "ਅੱਗੇ",
+  },
+};
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [language, setLanguage] = useState<Language>('hi'); // Default to Hindi
+
+  const t = (key: string): string => {
+    return translations[language][key as keyof typeof translations[typeof language]] || key;
+  };
+
+  const value = {
+    language,
+    setLanguage,
+    t,
+  };
+
+  return (
+    <LanguageContext.Provider value={value}>
+      {children}
+    </LanguageContext.Provider>
+  );
+}
+
+export function useLanguage() {
+  const context = useContext(LanguageContext);
+  if (context === undefined) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
+}
