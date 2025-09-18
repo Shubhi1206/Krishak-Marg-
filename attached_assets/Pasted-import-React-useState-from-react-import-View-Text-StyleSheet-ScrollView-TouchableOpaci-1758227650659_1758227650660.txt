@@ -1,0 +1,172 @@
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Card, Button } from 'react-native-paper';
+
+// i18n setup all here:
+import i18n from 'i18next';
+import { initReactI18next, useTranslation } from 'react-i18next';
+
+i18n
+  .use(initReactI18next)
+  .init({
+    fallbackLng: 'en',
+    lng: 'en',
+    resources: {
+      en: {
+        translation: {
+          welcome: "Hello, Rajesh!",
+          location: "Aurangabad, Maharashtra",
+          quickServices: "Quick Services",
+          weatherAlerts: "Weather Alerts",
+          diseaseDetection: "Disease Detection",
+          soilHealth: "Soil Health",
+          marketPrices: "Market Prices"
+        }
+      },
+      hi: {
+        translation: {
+          welcome: "नमस्ते, राजेश जी!",
+          location: "औरंगाबाद, महाराष्ट्र",
+          quickServices: "त्वरित सेवाएँ",
+          weatherAlerts: "मौसम अलर्ट",
+          diseaseDetection: "रोग पहचान",
+          soilHealth: "मिट्टी जांच",
+          marketPrices: "बाजार भाव"
+        }
+      },
+      pa: {
+        translation: {
+          welcome: "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ, ਰਾਜੇਸ਼ ਜੀ!",
+          location: "ਔਰੰਗਾਬਾਦ, ਮਹਾਰਾਸ਼ਟਰ",
+          quickServices: "ਤੁਰੰਤ ਸੇਵਾਵਾਂ",
+          weatherAlerts: "ਮੌਸਮ ਚੇਤਾਵਨੀ",
+          diseaseDetection: "ਬਿਮਾਰੀ ਪਛਾਣ",
+          soilHealth: "ਮਿੱਟੀ ਦੀ ਸਿਹਤ",
+          marketPrices: "ਬਾਜ਼ਾਰ ਭਾਵ"
+        }
+      }
+    },
+    interpolation: { escapeValue: false }
+  });
+
+// Language selection component
+function LanguageButton({ currentLang, onSelect }) {
+  const [visible, setVisible] = useState(false);
+  const languages = [
+    { code: 'en', label: 'English' },
+    { code: 'hi', label: 'हिन्दी' },
+    { code: 'pa', label: 'ਪੰਜਾਬੀ' },
+  ];
+
+  return (
+    <View>
+      <TouchableOpacity style={styles.languageButton} onPress={() => setVisible(true)}>
+        <Icon name="language" size={22} color="#0e8543" />
+        <Text style={{marginLeft: 6}}>{languages.find(l => l.code === currentLang)?.label}</Text>
+      </TouchableOpacity>
+      <Modal visible={visible} transparent animationType="fade">
+        <TouchableOpacity style={styles.languageModalBG} onPress={() => setVisible(false)}>
+          <View style={styles.languageModal}>
+            {languages.map(l => (
+              <TouchableOpacity
+                key={l.code}
+                style={styles.languageOption}
+                onPress={() => {
+                  onSelect(l.code);
+                  setVisible(false);
+                }}>
+                <Text style={{fontSize: 17}}>{l.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    </View>
+  );
+}
+
+function HomeScreen({ onLangChange, lang }) {
+  const { t } = useTranslation();
+  return (
+    <ScrollView style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+      <View style={styles.headerBar}>
+        <Text style={styles.appTitle}>KrishakMarg</Text>
+        <LanguageButton currentLang={lang} onSelect={onLangChange} />
+      </View>
+      <Card style={styles.welcomeCard}>
+        <Text style={styles.welcomeText}>{t('welcome')}</Text>
+        <Text style={styles.locationText}>{t('location')}</Text>
+      </Card>
+      <Text style={styles.quickLabel}>{t('quickServices')}</Text>
+      <View style={styles.quickServices}>
+        <Card style={styles.serviceCard}>
+          <Text style={styles.serviceText}>{t('weatherAlerts')}</Text>
+        </Card>
+        <Card style={styles.serviceCard}>
+          <Text style={styles.serviceText}>{t('diseaseDetection')}</Text>
+        </Card>
+        <Card style={styles.serviceCard}>
+          <Text style={styles.serviceText}>{t('soilHealth')}</Text>
+        </Card>
+        <Card style={styles.serviceCard}>
+          <Text style={styles.serviceText}>{t('marketPrices')}</Text>
+        </Card>
+      </View>
+    </ScrollView>
+  );
+}
+
+const Tab = createMaterialBottomTabNavigator();
+
+export default function App() {
+  const { i18n } = useTranslation();
+  const [lang, setLang] = useState(i18n.language);
+
+  function handleLangChange(langCode) {
+    setLang(langCode);
+    i18n.changeLanguage(langCode);
+  }
+
+  return (
+    <NavigationContainer>
+      <Tab.Navigator
+        initialRouteName="Home"
+        activeColor="#0e8543"
+        barStyle={{ backgroundColor: 'white', borderTopColor: '#eee', borderTopWidth: 1 }}>
+        <Tab.Screen
+          name="Home"
+          options={{
+            tabBarLabel: 'Home',
+            tabBarIcon: ({ color }) => (
+              <Icon name="home" color={color} size={24} />
+            ),
+          }}
+        >
+          {() => <HomeScreen onLangChange={handleLangChange} lang={lang} />}
+        </Tab.Screen>
+        {/* Add other tabs similarly if desired */}
+      </Tab.Navigator>
+    </NavigationContainer>
+  );
+}
+
+const styles = StyleSheet.create({
+  headerBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 20, marginHorizontal: 16 },
+  appTitle: { fontWeight: 'bold', fontSize: 20, color: '#0e8543' },
+  welcomeCard: {margin: 16, padding: 16, backgroundColor: '#27ae60', borderRadius: 8},
+  welcomeText: {color: '#fff', fontSize: 20, fontWeight: 'bold'},
+  locationText: {color: '#fff', fontSize: 14, marginTop: 4},
+  quickLabel: {marginLeft: 16, marginTop: 12, fontWeight: 'bold'},
+  quickServices: {flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', margin: 16},
+  serviceCard: {
+    width: '46%', marginVertical: 6, alignItems: 'center', justifyContent: 'center', padding: 12, borderRadius: 8
+  },
+  serviceText: {fontSize: 13, textAlign: 'center'},
+  languageButton: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ededed', borderRadius: 16, padding: 8 },
+  languageModalBG: { flex: 1, backgroundColor: 'rgba(0,0,0,0.06)', justifyContent: 'center', alignItems: 'center' },
+  languageModal: { backgroundColor: '#fff', borderRadius: 8, padding: 20, minWidth: 160 },
+  languageOption: { paddingVertical: 10, alignItems: 'center' }
+});
