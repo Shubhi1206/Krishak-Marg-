@@ -1,12 +1,9 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage, type Language } from '@/contexts/LanguageContext';
-import { Languages, Check } from 'lucide-react';
+import { Languages } from 'lucide-react';
 
 export default function LanguageSelector() {
   const { language, setLanguage, t } = useLanguage();
-  const [showModal, setShowModal] = useState(false);
 
   const languages = [
     { code: 'en' as Language, name: 'English', nativeName: 'English' },
@@ -16,56 +13,35 @@ export default function LanguageSelector() {
 
   const currentLanguage = languages.find(lang => lang.code === language);
 
-  const handleLanguageSelect = (langCode: Language) => {
+  const handleLanguageSelect = (langCode: string) => {
     console.log('Language changed to:', langCode);
-    setLanguage(langCode);
-    setShowModal(false);
+    setLanguage(langCode as Language);
   };
 
   return (
-    <>
-      <Button
-        data-testid="button-language-selector"
-        variant="outline"
-        size="sm"
-        onClick={() => setShowModal(true)}
-        className="flex items-center gap-2"
-      >
-        <Languages className="w-4 h-4" />
-        <span className="hidden sm:inline">{currentLanguage?.nativeName}</span>
-      </Button>
-
-      <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent data-testid="modal-language-selector" className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Languages className="w-5 h-5 text-primary" />
-              {t('selectLanguage')}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-2">
-            {languages.map((lang) => (
-              <Button
-                key={lang.code}
-                data-testid={`language-option-${lang.code}`}
-                variant="outline"
-                onClick={() => handleLanguageSelect(lang.code)}
-                className={`w-full justify-between h-auto p-4 ${
-                  language === lang.code ? 'border-primary bg-primary/10' : ''
-                }`}
-              >
-                <div className="text-left">
-                  <div className="font-medium">{lang.nativeName}</div>
-                  <div className="text-sm text-muted-foreground">{lang.name}</div>
-                </div>
-                {language === lang.code && (
-                  <Check className="w-5 h-5 text-primary" />
-                )}
-              </Button>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+    <div className="flex items-center gap-2">
+      <Languages className="w-4 h-4 text-muted-foreground" />
+      <Select value={language} onValueChange={handleLanguageSelect}>
+        <SelectTrigger data-testid="language-dropdown" className="w-32">
+          <SelectValue placeholder={t('language')}>
+            {currentLanguage?.nativeName}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {languages.map((lang) => (
+            <SelectItem 
+              key={lang.code}
+              data-testid={`language-option-${lang.code}`}
+              value={lang.code}
+            >
+              <div className="flex flex-col">
+                <span className="font-medium">{lang.nativeName}</span>
+                <span className="text-xs text-muted-foreground">{lang.name}</span>
+              </div>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 }

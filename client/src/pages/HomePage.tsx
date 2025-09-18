@@ -3,7 +3,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import WeatherCard from '@/components/WeatherCard';
 import CropAdvisoryCard from '@/components/CropAdvisoryCard';
 import CameraCard from '@/components/CameraCard';
-import MarketPricesCard from '@/components/MarketPricesCard';
+import MandiCard from '@/components/MarketPricesCard';
+import NewsAlertCard from '@/components/NewsAlertCard';
 import LanguageSelector from '@/components/LanguageSelector';
 import ThemeToggle from '@/components/ThemeToggle';
 import { MapPin, User } from 'lucide-react';
@@ -29,11 +30,11 @@ export default function HomePage() {
             <div className="flex justify-between items-start mb-4">
               <div className="text-white">
                 <h1 className="text-xl font-bold">
-                  {t('hello')}, {farmer?.name || 'Farmer'}!
+                  {t('hello')}, {farmer?.name || t('defaultFarmerName')}!
                 </h1>
                 <div className="flex items-center gap-1 text-sm opacity-90">
                   <MapPin className="w-3 h-3" />
-                  <span>{farmer?.location || 'India'}</span>
+                  <span>{farmer?.location || t('defaultLocation')}</span>
                 </div>
               </div>
               
@@ -57,8 +58,11 @@ export default function HomePage() {
         {/* Camera Feature */}
         <CameraCard />
 
-        {/* Market Prices */}
-        <MarketPricesCard />
+        {/* Mandi and News Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <MandiCard />
+          <NewsAlertCard />
+        </div>
       </div>
     </div>
   );
